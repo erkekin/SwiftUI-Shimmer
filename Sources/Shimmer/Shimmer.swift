@@ -35,31 +35,22 @@ public struct Shimmer: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .modifier(
-                AnimatedMask(phase: phase).animation(animation)
-            )
-            .onAppear { phase = 0.8 }
-    }
-
-    /// An animatable modifier to interpolate between `phase` values.
-    struct AnimatedMask: AnimatableModifier {
-        var phase: CGFloat = 0
-
-        var animatableData: CGFloat {
-            get { phase }
-            set { phase = newValue }
-        }
-
-        func body(content: Content) -> some View {
-            content
-                .mask(GradientMask(phase: phase).scaleEffect(3))
-        }
+            .mask(GradientMask(phase: phase).scaleEffect(3))
+            .withAnimation(animation) {
+              phase = 0.8
+            }
     }
 
     /// A slanted, animatable gradient between transparent and opaque to use as mask.
     /// The `phase` parameter shifts the gradient, moving the opaque band.
-    struct GradientMask: View {
-        let phase: CGFloat
+    struct GradientMask: View, Animatable {
+      var phase: CGFloat
+
+      var animatableData: CGFloat {
+          get { phase }
+          set { phase = newValue }
+      }
+
         let centerColor = Color.black
         let edgeColor = Color.black.opacity(0.3)
         @Environment(\.layoutDirection) private var layoutDirection
